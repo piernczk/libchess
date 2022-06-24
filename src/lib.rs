@@ -15,6 +15,8 @@
 // You should have received a copy of the GNU Lesser General Public License
 // along with libchess. If not, see <https://www.gnu.org/licenses/>.
 
+pub mod piece;
+
 pub fn hello_world() {
     println!("Hello, world!");
 }
