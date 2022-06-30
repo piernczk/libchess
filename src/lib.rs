@@ -1,5 +1,5 @@
 // Copyright (C) 2022 Pierniczek
-// 
+//
 // This file is part of libchess.
 //
 // libchess is free software: you can redistribute it and/or modify it under the

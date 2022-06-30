@@ -1,5 +1,5 @@
 // Copyright (C) 2022 Pierniczek
-// 
+//
 // This file is part of libchess.
 //
 // libchess is free software: you can redistribute it and/or modify it under the
@@ -15,6 +15,9 @@
 // You should have received a copy of the GNU Lesser General Public License
 // along with libchess. If not, see <https://www.gnu.org/licenses/>.
 
+//! Pieces-related things.
+
+/// White or black pieces.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 #[repr(u8)]
 pub enum Player {
@@ -53,6 +56,7 @@ impl From<bool> for Player {
     }
 }
 
+/// Chess piece types.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 #[repr(u8)]
 pub enum Piece {
