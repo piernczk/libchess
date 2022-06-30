@@ -17,7 +17,3 @@
 
 pub mod board;
 pub mod piece;
-
-pub fn hello_world() {
-    println!("Hello, world!");
-}
