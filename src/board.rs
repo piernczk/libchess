@@ -149,7 +149,7 @@ impl From<(Player, Piece)> for SquareInfo {
 /// A newtype for an array of [`Bitboard`]s of all [`Piece`].
 ///
 /// Even 2x faster than using single variables for each [`Bitboard`].
-#[derive(Debug, Clone, PartialEq, Eq)]
+#[derive(Debug, Clone, PartialEq, Eq, Default)]
 pub struct Pieces(pub [Bitboard; 6]);
 
 impl Pieces {
@@ -213,7 +213,7 @@ impl ops::IndexMut<Piece> for Pieces {
 }
 
 /// A [`Bitboard`]-based chessboard implementation.
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Default)]
 pub struct Board {
     color: Bitboard,
     pieces: Pieces,
