@@ -282,10 +282,7 @@ impl Board {
     /// [`get_piece`](Self::get_piece), but `square_info` should be used
     /// whenever both the color and the type of a piece is needed.
     pub fn square_info(&self, sq: Square) -> Option<SquareInfo> {
-        match self.get_piece(sq) {
-            Some(pc) => Some(SquareInfo::new(self.get_color_unchecked(sq), pc)),
-            None => None
-        }
+        self.get_piece(sq).map(|pc| SquareInfo::new(self.get_color_unchecked(sq), pc))
     }
 
     /// Set the color of a piece.
