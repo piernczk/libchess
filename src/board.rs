@@ -17,10 +17,10 @@
 
 //! Board-related things.
 
-use bitvec::prelude::*;
 use crate::piece::*;
-use std::ops;
+use bitvec::prelude::*;
 use itertools::izip;
+use std::ops;
 
 /// 64-bit bitboard.
 ///
@@ -139,10 +139,7 @@ impl From<SquareInfo> for (Player, Piece) {
 
 impl From<(Player, Piece)> for SquareInfo {
     fn from(t: (Player, Piece)) -> Self {
-        Self {
-            pl: t.0,
-            pc: t.1,
-        }
+        Self { pl: t.0, pc: t.1 }
     }
 }
 
@@ -172,22 +169,13 @@ impl TryFrom<[Bitboard; 6]> for Pieces {
     fn try_from(arr: [Bitboard; 6]) -> Result<Self, Self::Error> {
         // iterate through all the squares
         // i is index, p is pawn, n is knight, etc.
-        for (i, p, n, b, r, q, k) in izip!(
-            0..64,
-            arr[0],
-            arr[1],
-            arr[2],
-            arr[3],
-            arr[4],
-            arr[5],
-        ) {
-            let bits =
-                (p as u8) |
-                ((n as u8) << 1) |
-                ((b as u8) << 2) |
-                ((r as u8) << 3) |
-                ((q as u8) << 4) |
-                ((k as u8) << 5);
+        for (i, p, n, b, r, q, k) in izip!(0..64, arr[0], arr[1], arr[2], arr[3], arr[4], arr[5],) {
+            let bits = (p as u8)
+                | ((n as u8) << 1)
+                | ((b as u8) << 2)
+                | ((r as u8) << 3)
+                | ((q as u8) << 4)
+                | ((k as u8) << 5);
 
             if bits.count_ones() > 1 {
                 return Err(i);
@@ -233,12 +221,12 @@ impl Board {
     /// A bit faster than [`get_piece`](Self::get_piece).
     pub fn occupied(&self, sq: Square) -> bool {
         let idx = sq.index() as usize;
-        self.pieces[Piece::Pawn][idx] |
-            self.pieces[Piece::Knight][idx] |
-            self.pieces[Piece::Bishop][idx] |
-            self.pieces[Piece::Rook][idx] |
-            self.pieces[Piece::Queen][idx] |
-            self.pieces[Piece::King][idx]
+        self.pieces[Piece::Pawn][idx]
+            | self.pieces[Piece::Knight][idx]
+            | self.pieces[Piece::Bishop][idx]
+            | self.pieces[Piece::Rook][idx]
+            | self.pieces[Piece::Queen][idx]
+            | self.pieces[Piece::King][idx]
     }
 
     /// Get the color of the piece on a square.
@@ -282,7 +270,8 @@ impl Board {
     /// [`get_piece`](Self::get_piece), but `square_info` should be used
     /// whenever both the color and the type of a piece is needed.
     pub fn square_info(&self, sq: Square) -> Option<SquareInfo> {
-        self.get_piece(sq).map(|pc| SquareInfo::new(self.get_color_unchecked(sq), pc))
+        self.get_piece(sq)
+            .map(|pc| SquareInfo::new(self.get_color_unchecked(sq), pc))
     }
 
     /// Set the color of a piece.
@@ -325,21 +314,19 @@ impl PartialEq for Board {
             return false;
         }
 
-        let soccupied =
-            self.pieces[Piece::Pawn] |
-            self.pieces[Piece::Knight] |
-            self.pieces[Piece::Bishop] |
-            self.pieces[Piece::Rook] |
-            self.pieces[Piece::Queen] |
-            self.pieces[Piece::King];
+        let soccupied = self.pieces[Piece::Pawn]
+            | self.pieces[Piece::Knight]
+            | self.pieces[Piece::Bishop]
+            | self.pieces[Piece::Rook]
+            | self.pieces[Piece::Queen]
+            | self.pieces[Piece::King];
 
-        let ooccupied =
-            other.pieces[Piece::Pawn] |
-            other.pieces[Piece::Knight] |
-            other.pieces[Piece::Bishop] |
-            other.pieces[Piece::Rook] |
-            other.pieces[Piece::Queen] |
-            other.pieces[Piece::King];
+        let ooccupied = other.pieces[Piece::Pawn]
+            | other.pieces[Piece::Knight]
+            | other.pieces[Piece::Bishop]
+            | other.pieces[Piece::Rook]
+            | other.pieces[Piece::Queen]
+            | other.pieces[Piece::King];
 
         // bitmasks (soccupied and ooccupied) are equal so if the following
         // condition is true, the boards are equal

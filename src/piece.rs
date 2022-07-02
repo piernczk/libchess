@@ -51,8 +51,11 @@ impl From<Player> for bool {
 
 impl From<bool> for Player {
     fn from(b: bool) -> Self {
-        if b { Self::Black }
-        else { Self::White }
+        if b {
+            Self::Black
+        } else {
+            Self::White
+        }
     }
 }
 
