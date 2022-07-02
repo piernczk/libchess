@@ -232,7 +232,13 @@ impl Board {
     ///
     /// A bit faster than [`get_piece`](Self::get_piece).
     pub fn occupied(&self, sq: Square) -> bool {
-        self.pieces.0.iter().any(|bitboard| bitboard[sq.index() as usize])
+        let idx = sq.index() as usize;
+        self.pieces[Piece::Pawn][idx] |
+            self.pieces[Piece::Knight][idx] |
+            self.pieces[Piece::Bishop][idx] |
+            self.pieces[Piece::Rook][idx] |
+            self.pieces[Piece::Queen][idx] |
+            self.pieces[Piece::King][idx]
     }
 
     /// Get the color of the piece on a square.
