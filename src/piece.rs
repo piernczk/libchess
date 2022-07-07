@@ -25,6 +25,16 @@ pub enum Player {
     Black = 1,
 }
 
+impl Player {
+    /// Returns `Black` if it's `White` and `White` otherwise. 
+    pub fn opponent(self) -> Player {
+        match self {
+            Player::White => Player::Black,
+            Player::Black => Player::White,
+        }
+    }
+}
+
 impl From<Player> for u8 {
     fn from(pl: Player) -> u8 {
         pl as u8
