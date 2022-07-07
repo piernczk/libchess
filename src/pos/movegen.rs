@@ -16,6 +16,16 @@ macro_rules! gen_promotions {
     };
 }
 
+macro_rules! found_a_name {
+    ($sq:ident, $cond:expr => $e:expr) => {
+        if let Some($sq) = $sq {
+            if $cond {
+                $e
+            }
+        }
+    };
+}
+
 #[allow(dead_code)]
 pub fn movegen_pseudo_legal(pos: &Position) -> Vec<Move> {
     let mut result = Vec::with_capacity(MAX_MOVES_IN_POSITION as usize);
@@ -61,46 +71,34 @@ pub fn movegen_pseudo_legal(pos: &Position) -> Vec<Move> {
                         gen_promotions!(result, sq, sq_front);
                     }
 
-                    if let Some(sq_west_front) = sq_west_front {
-                        if pos.get_board().occupied(sq_west_front) {
-                            // "if you need more than 3 levels of indentation,
-                            // you're screwed anyway, and should fix your
-                            // program" haha sure
-                            gen_promotions!(result, sq, sq_west_front);
-                        }
-                    }
+                    found_a_name!(sq_west_front, pos.get_board().occupied(sq_west_front) => {
+                        gen_promotions!(result, sq, sq_west_front);
+                    });
 
-                    if let Some(sq_east_front) = sq_east_front {
-                        if pos.get_board().occupied(sq_east_front) {
-                            gen_promotions!(result, sq, sq_east_front);
-                        }
-                    }
+                    found_a_name!(sq_east_front, pos.get_board().occupied(sq_east_front) => {
+                        gen_promotions!(result, sq, sq_east_front);
+                    });
                 } else {
-                    if let Some(sq_west_front) = sq_west_front {
-                        if pos.get_board().occupied(sq_west_front)
-                            || pos.get_en_passant_square() == Some(sq_west_front)
-                        {
-                            result.push(Move::new(sq, sq_west_front));
-                        }
-                    }
+                    found_a_name!(sq_west_front, pos.get_board().occupied(sq_west_front)
+                        || pos.get_en_passant_square() == Some(sq_west_front) =>
+                    {
+                        gen_promotions!(result, sq, sq_west_front);
+                    });
 
-                    if let Some(sq_east_front) = sq_east_front {
-                        if pos.get_board().occupied(sq_east_front)
-                            || pos.get_en_passant_square() == Some(sq_east_front)
-                        {
-                            result.push(Move::new(sq, sq_east_front));
-                        }
-                    }
-
-                    // i feel like i could have made these 30 lines above
-                    // disappear using a macro
-                    // but i don't have an idea for the name of said macro
+                    found_a_name!(sq_east_front, pos.get_board().occupied(sq_east_front)
+                        || pos.get_en_passant_square() == Some(sq_east_front) =>
+                    {
+                        gen_promotions!(result, sq, sq_east_front);
+                    });
 
                     if !pos.get_board().occupied(sq_front) {
                         result.push(Move::new(sq, sq_front));
 
                         let sq_front_front: Square;
                         if rank == 1 && pl == Player::White {
+                            // "if you need more than 3 levels of indentation,
+                            // you're screwed anyway, and should fix your
+                            // program" haha sure
                             sq_front_front = (file, rank + 2).into();
                         } else if rank == 6 && pl == Player::Black {
                             sq_front_front = (file, rank - 2).into();
