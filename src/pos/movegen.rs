@@ -28,10 +28,12 @@ macro_rules! found_a_name {
 
 #[allow(dead_code)]
 pub fn movegen_pseudo_legal(pos: &Position) -> Vec<Move> {
+    let b = pos.get_board();
     let mut result = Vec::with_capacity(MAX_MOVES_IN_POSITION as usize);
+
     for sq in (0..64).map(Square::from_index) {
         let (file, rank) = sq.into();
-        let (pl, pc) = match pos.get_board().square_info(sq) {
+        let (pl, pc) = match b.square_info(sq) {
             Some(sqi) => sqi.into(),
             None => continue,
         };
@@ -67,31 +69,31 @@ pub fn movegen_pseudo_legal(pos: &Position) -> Vec<Move> {
                 let sq_east_front = sq_east_front;
 
                 if (rank == 6 && pl == Player::White) || (rank == 1 && pl == Player::Black) {
-                    if !pos.get_board().occupied(sq_front) {
+                    if !b.occupied(sq_front) {
                         gen_promotions!(result, sq, sq_front);
                     }
 
-                    found_a_name!(sq_west_front, pos.get_board().occupied(sq_west_front) => {
+                    found_a_name!(sq_west_front, b.occupied(sq_west_front) => {
                         gen_promotions!(result, sq, sq_west_front);
                     });
 
-                    found_a_name!(sq_east_front, pos.get_board().occupied(sq_east_front) => {
+                    found_a_name!(sq_east_front, b.occupied(sq_east_front) => {
                         gen_promotions!(result, sq, sq_east_front);
                     });
                 } else {
-                    found_a_name!(sq_west_front, pos.get_board().occupied(sq_west_front)
+                    found_a_name!(sq_west_front, b.occupied(sq_west_front)
                         || pos.get_en_passant_square() == Some(sq_west_front) =>
                     {
                         gen_promotions!(result, sq, sq_west_front);
                     });
 
-                    found_a_name!(sq_east_front, pos.get_board().occupied(sq_east_front)
+                    found_a_name!(sq_east_front, b.occupied(sq_east_front)
                         || pos.get_en_passant_square() == Some(sq_east_front) =>
                     {
                         gen_promotions!(result, sq, sq_east_front);
                     });
 
-                    if !pos.get_board().occupied(sq_front) {
+                    if !b.occupied(sq_front) {
                         result.push(Move::new(sq, sq_front));
 
                         let sq_front_front: Square;
@@ -106,7 +108,7 @@ pub fn movegen_pseudo_legal(pos: &Position) -> Vec<Move> {
                             continue;
                         }
 
-                        if !pos.get_board().occupied(sq_front_front) {
+                        if !b.occupied(sq_front_front) {
                             result.push(Move::new(sq, sq_front_front));
                         }
                     }
