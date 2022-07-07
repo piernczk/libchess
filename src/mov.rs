@@ -133,7 +133,8 @@ impl Move {
     /// Returns the promotion piece.
     pub fn promotion_piece(&self) -> Option<Piece> {
         if self.is_promotion() {
-            Some((((self.0 >> 12) & 3 + 1) as u8).try_into().unwrap())
+            // i love parentheses
+            Some(((((self.0 >> 12) & 3) + 1) as u8).try_into().unwrap())
         } else {
             None
         }
