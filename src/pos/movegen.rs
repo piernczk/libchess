@@ -69,30 +69,32 @@ pub fn movegen_pseudo_legal(pos: &Position) -> Vec<Move> {
                 let sq_east_front = sq_east_front;
 
                 if (rank == 6 && pl == Player::White) || (rank == 1 && pl == Player::Black) {
+                    // standard promotion
                     if !b.occupied(sq_front) {
                         gen_promotions!(result, sq, sq_front);
                     }
 
-                    found_a_name!(sq_west_front, b.occupied(sq_west_front) => {
+                    // capture and promotion
+                    found_a_name!(sq_west_front, b.get_color(sq_west_front) == Some(pl.opponent()) => {
                         gen_promotions!(result, sq, sq_west_front);
                     });
-
-                    found_a_name!(sq_east_front, b.occupied(sq_east_front) => {
+                    found_a_name!(sq_east_front, b.get_color(sq_east_front) == Some(pl.opponent()) => {
                         gen_promotions!(result, sq, sq_east_front);
                     });
                 } else {
-                    found_a_name!(sq_west_front, b.occupied(sq_west_front)
+                    // standard capture
+                    found_a_name!(sq_west_front, b.get_color(sq_west_front) == Some(pl.opponent())
                         || pos.get_en_passant_square() == Some(sq_west_front) =>
                     {
                         gen_promotions!(result, sq, sq_west_front);
                     });
-
-                    found_a_name!(sq_east_front, b.occupied(sq_east_front)
+                    found_a_name!(sq_east_front, b.get_color(sq_east_front) == Some(pl.opponent())
                         || pos.get_en_passant_square() == Some(sq_east_front) =>
                     {
                         gen_promotions!(result, sq, sq_east_front);
                     });
 
+                    // standard pawn push
                     if !b.occupied(sq_front) {
                         result.push(Move::new(sq, sq_front));
 
@@ -108,6 +110,7 @@ pub fn movegen_pseudo_legal(pos: &Position) -> Vec<Move> {
                             continue;
                         }
 
+                        // double pawn push
                         if !b.occupied(sq_front_front) {
                             result.push(Move::new(sq, sq_front_front));
                         }
