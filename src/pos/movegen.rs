@@ -26,6 +26,14 @@ macro_rules! found_a_name {
     };
 }
 
+macro_rules! move_not_capturing_self {
+    ($vec:ident, $b:ident, $origin:expr, $dest:expr, $pl:expr) => {
+        if $b.get_color($dest) != Some($pl) {
+            $vec.push(Move::new($origin, $dest));
+        }
+    }
+}
+
 #[allow(dead_code)]
 pub fn movegen_pseudo_legal(pos: &Position) -> Vec<Move> {
     let b = pos.get_board();
@@ -75,20 +83,20 @@ pub fn movegen_pseudo_legal(pos: &Position) -> Vec<Move> {
                     }
 
                     // capture and promotion
-                    found_a_name!(sq_west_front, b.get_color(sq_west_front) == Some(pl.opponent()) => {
+                    found_a_name!(sq_west_front, b.occupied(sq_west_front) => {
                         gen_promotions!(result, sq, sq_west_front);
                     });
-                    found_a_name!(sq_east_front, b.get_color(sq_east_front) == Some(pl.opponent()) => {
+                    found_a_name!(sq_east_front, b.occupied(sq_east_front) => {
                         gen_promotions!(result, sq, sq_east_front);
                     });
                 } else {
                     // standard capture
-                    found_a_name!(sq_west_front, b.get_color(sq_west_front) == Some(pl.opponent())
+                    found_a_name!(sq_west_front, b.occupied(sq_west_front)
                         || pos.get_en_passant_square() == Some(sq_west_front) =>
                     {
                         gen_promotions!(result, sq, sq_west_front);
                     });
-                    found_a_name!(sq_east_front, b.get_color(sq_east_front) == Some(pl.opponent())
+                    found_a_name!(sq_east_front, b.occupied(sq_east_front)
                         || pos.get_en_passant_square() == Some(sq_east_front) =>
                     {
                         gen_promotions!(result, sq, sq_east_front);
@@ -113,6 +121,52 @@ pub fn movegen_pseudo_legal(pos: &Position) -> Vec<Move> {
                         // double pawn push
                         if !b.occupied(sq_front_front) {
                             result.push(Move::new(sq, sq_front_front));
+                        }
+                    }
+                }
+            }
+            Piece::Knight => {
+                // north
+                if rank < 7 {
+                    // north east east
+                    if file < 6 {
+                        move_not_capturing_self!(result, b, sq, (file + 2, rank + 1).into(), pl);
+                    }
+                    // north west west
+                    if file > 1 {
+                        move_not_capturing_self!(result, b, sq, (file - 2, rank + 1).into(), pl);
+                    }
+
+                    if rank < 6 {
+                        // north north east
+                        if file < 7 {
+                            move_not_capturing_self!(result, b, sq, (file + 1, rank + 2).into(), pl);
+                        }
+                        // north north west
+                        if file > 0 {
+                            move_not_capturing_self!(result, b, sq, (file - 1, rank + 2).into(), pl);
+                        }
+                    }
+                }
+                // south
+                if rank > 0 {
+                    // south east east
+                    if file < 6 {
+                        move_not_capturing_self!(result, b, sq, (file + 2, rank - 1).into(), pl);
+                    }
+                    // south west west
+                    if file > 1 {
+                        move_not_capturing_self!(result, b, sq, (file - 2, rank - 1).into(), pl);
+                    }
+
+                    if rank > 1 {
+                        // south south east
+                        if file < 7 {
+                            move_not_capturing_self!(result, b, sq, (file + 1, rank - 2).into(), pl);
+                        }
+                        // south south west
+                        if file > 0 {
+                            move_not_capturing_self!(result, b, sq, (file - 1, rank - 2).into(), pl);
                         }
                     }
                 }
