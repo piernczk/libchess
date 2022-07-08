@@ -25,7 +25,7 @@ use crate::mov::*;
 pub const MAX_MOVES_IN_POSITION: u8 = 218;
 
 macro_rules! gen_promotions {
-    ($vec:ident, $origin:ident, $dest:ident) => {
+    ($vec:ident, $origin:expr, $dest:expr) => {
         $vec.push(Move::promotion($origin, $dest, Piece::Knight).unwrap());
         $vec.push(Move::promotion($origin, $dest, Piece::Bishop).unwrap());
         $vec.push(Move::promotion($origin, $dest, Piece::Rook).unwrap());
@@ -34,7 +34,7 @@ macro_rules! gen_promotions {
 }
 
 macro_rules! found_a_name {
-    ($sq:ident, $cond:expr => $e:expr) => {
+    ($sq:ident, $cond:expr => $e:block) => {
         if let Some($sq) = $sq {
             if $cond {
                 $e
