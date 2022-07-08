@@ -104,7 +104,7 @@ impl Position {
         self.turn
     }
 
-    /// Returns the players' castling availability 
+    /// Returns the players' castling availability.
     #[inline]
     pub fn get_castling_availability(&self) -> CastlingAvailability {
         self.castling_availability

@@ -26,7 +26,7 @@ pub enum Player {
 }
 
 impl Player {
-    /// Returns `Black` if it's `White` and `White` otherwise. 
+    /// Returns `Black` if it's `White` and `White` otherwise.
     pub fn opponent(self) -> Player {
         match self {
             Player::White => Player::Black,
