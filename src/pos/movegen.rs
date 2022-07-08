@@ -51,7 +51,7 @@ macro_rules! move_not_capturing_self {
     }
 }
 
-macro_rules! diagonals_loop {
+macro_rules! linegen_loop {
     ($vec:ident, $b:ident, $sq:expr, $pl:expr; $range:expr, $i:ident => $dest:expr) => {
         for $i in $range {
             let dest = $dest;
@@ -72,16 +72,33 @@ fn diagonals(vec: &mut Vec<Move>, b: &Board, sq: Square, pl: Player) {
     let rank = sq.rank();
 
     // south west
-    diagonals_loop!(vec, b, sq, pl; 0..file.min(rank), i => (file - i, rank - i).into());
+    linegen_loop!(vec, b, sq, pl; 0..file.min(rank), i => (file - i, rank - i).into());
 
     // south east
-    diagonals_loop!(vec, b, sq, pl; 0..(8 - file).min(rank), i => (file + i, rank - i).into());
+    linegen_loop!(vec, b, sq, pl; 0..(8 - file).min(rank), i => (file + i, rank - i).into());
 
     // north east
-    diagonals_loop!(vec, b, sq, pl; 0..(8 - file.max(rank)), i => (file + i, rank + i).into());
+    linegen_loop!(vec, b, sq, pl; 0..(8 - file.max(rank)), i => (file + i, rank + i).into());
 
     // north west
-    diagonals_loop!(vec, b, sq, pl; 0..file.min(8 - rank), i => (file - i, rank + i).into());
+    linegen_loop!(vec, b, sq, pl; 0..file.min(8 - rank), i => (file - i, rank + i).into());
+}
+
+fn horvert(vec: &mut Vec<Move>, b: &Board, sq: Square, pl: Player) {
+    let file = sq.file();
+    let rank = sq.rank();
+
+    // west
+    linegen_loop!(vec, b, sq, pl; (0..file).rev(), i => (i, rank).into());
+
+    // east
+    linegen_loop!(vec, b, sq, pl; (file + 1)..8, i => (i, rank).into());
+
+    // south
+    linegen_loop!(vec, b, sq, pl; (0..rank).rev(), i => (file, i).into());
+
+    // north
+    linegen_loop!(vec, b, sq, pl; (rank + 1)..8, i => (file, i).into());
 }
 
 #[allow(dead_code)]
@@ -222,6 +239,11 @@ pub fn movegen_pseudo_legal(pos: &Position) -> Vec<Move> {
                 }
             }
             Piece::Bishop => diagonals(&mut result, &b, sq, pl),
+            Piece::Rook => horvert(&mut result, &b, sq, pl),
+            Piece::Queen => {
+                diagonals(&mut result, &b, sq, pl);
+                horvert(&mut result, &b, sq, pl);
+            }
             _ => {}
         }
     }
