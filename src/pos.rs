@@ -37,6 +37,29 @@ bitflags! {
     }
 }
 
+impl CastlingAvailability {
+    pub fn kingside(pl: Player) -> Self {
+        match pl {
+            Player::White => Self::WHITE_KINGSIDE,
+            Player::Black => Self::BLACK_KINGSIDE,
+        }
+    }
+
+    pub fn queenside(pl: Player) -> Self {
+        match pl {
+            Player::White => Self::WHITE_QUEENSIDE,
+            Player::Black => Self::BLACK_QUEENSIDE,
+        }
+    }
+
+    pub fn both(pl: Player) -> Self {
+        match pl {
+            Player::White => Self::WHITE,
+            Player::Black => Self::BLACK,
+        }
+    }
+}
+
 /// A position, as understood in Forsyth-Edwards Notation.
 ///
 /// A position consists of:
