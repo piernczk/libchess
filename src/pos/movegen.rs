@@ -48,7 +48,7 @@ macro_rules! move_not_capturing_self {
         if $b.get_color($dest) != Some($pl) {
             $vec.push(Move::new($origin, $dest));
         }
-    }
+    };
 }
 
 macro_rules! linegen_loop {
@@ -64,7 +64,7 @@ macro_rules! linegen_loop {
                 $vec.push(Move::new($sq, dest));
             }
         }
-    }
+    };
 }
 
 fn diagonals(vec: &mut Vec<Move>, b: &Board, sq: Square, pl: Player) {
@@ -207,11 +207,23 @@ pub fn movegen_pseudo_legal(pos: &Position) -> Vec<Move> {
                     if rank < 6 {
                         // north north east
                         if file < 7 {
-                            move_not_capturing_self!(result, b, sq, (file + 1, rank + 2).into(), pl);
+                            move_not_capturing_self!(
+                                result,
+                                b,
+                                sq,
+                                (file + 1, rank + 2).into(),
+                                pl
+                            );
                         }
                         // north north west
                         if file > 0 {
-                            move_not_capturing_self!(result, b, sq, (file - 1, rank + 2).into(), pl);
+                            move_not_capturing_self!(
+                                result,
+                                b,
+                                sq,
+                                (file - 1, rank + 2).into(),
+                                pl
+                            );
                         }
                     }
                 }
@@ -229,11 +241,23 @@ pub fn movegen_pseudo_legal(pos: &Position) -> Vec<Move> {
                     if rank > 1 {
                         // south south east
                         if file < 7 {
-                            move_not_capturing_self!(result, b, sq, (file + 1, rank - 2).into(), pl);
+                            move_not_capturing_self!(
+                                result,
+                                b,
+                                sq,
+                                (file + 1, rank - 2).into(),
+                                pl
+                            );
                         }
                         // south south west
                         if file > 0 {
-                            move_not_capturing_self!(result, b, sq, (file - 1, rank - 2).into(), pl);
+                            move_not_capturing_self!(
+                                result,
+                                b,
+                                sq,
+                                (file - 1, rank - 2).into(),
+                                pl
+                            );
                         }
                     }
                 }
@@ -277,14 +301,18 @@ pub fn movegen_pseudo_legal(pos: &Position) -> Vec<Move> {
                     }
                 }
 
-                if pos.get_castling_availability().intersects(CastlingAvailability::kingside(pl))
+                if pos
+                    .get_castling_availability()
+                    .intersects(CastlingAvailability::kingside(pl))
                     && !b.occupied((file + 1, rank).into())
                     && !b.occupied((file + 2, rank).into())
                 {
                     result.push(Move::castling(sq, Square::new(7, rank)));
                 }
 
-                if pos.get_castling_availability().intersects(CastlingAvailability::queenside(pl))
+                if pos
+                    .get_castling_availability()
+                    .intersects(CastlingAvailability::queenside(pl))
                     && !b.occupied((file - 1, rank).into())
                     && !b.occupied((file - 2, rank).into())
                     && !b.occupied((file - 3, rank).into())
