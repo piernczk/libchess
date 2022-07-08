@@ -244,7 +244,54 @@ pub fn movegen_pseudo_legal(pos: &Position) -> Vec<Move> {
                 diagonals(&mut result, &b, sq, pl);
                 horvert(&mut result, &b, sq, pl);
             }
-            _ => {}
+            Piece::King => {
+                if rank > 0 {
+                    move_not_capturing_self!(result, b, sq, (file, rank - 1).into(), pl);
+                }
+
+                if rank < 7 {
+                    move_not_capturing_self!(result, b, sq, (file, rank + 1).into(), pl);
+                }
+
+                if file > 0 {
+                    move_not_capturing_self!(result, b, sq, (file - 1, rank).into(), pl);
+
+                    if rank > 0 {
+                        move_not_capturing_self!(result, b, sq, (file - 1, rank - 1).into(), pl);
+                    }
+
+                    if rank < 7 {
+                        move_not_capturing_self!(result, b, sq, (file - 1, rank + 1).into(), pl);
+                    }
+                }
+
+                if file < 7 {
+                    move_not_capturing_self!(result, b, sq, (file + 1, rank).into(), pl);
+
+                    if rank > 0 {
+                        move_not_capturing_self!(result, b, sq, (file + 1, rank - 1).into(), pl);
+                    }
+
+                    if rank < 7 {
+                        move_not_capturing_self!(result, b, sq, (file + 1, rank + 1).into(), pl);
+                    }
+                }
+
+                if pos.get_castling_availability().intersects(CastlingAvailability::kingside(pl))
+                    && !b.occupied((file + 1, rank).into())
+                    && !b.occupied((file + 2, rank).into())
+                {
+                    result.push(Move::castling(sq, Square::new(7, rank)));
+                }
+
+                if pos.get_castling_availability().intersects(CastlingAvailability::queenside(pl))
+                    && !b.occupied((file - 1, rank).into())
+                    && !b.occupied((file - 2, rank).into())
+                    && !b.occupied((file - 3, rank).into())
+                {
+                    result.push(Move::castling(sq, Square::new(0, rank)));
+                }
+            }
         }
     }
 
