@@ -226,5 +226,6 @@ pub fn movegen_pseudo_legal(pos: &Position) -> Vec<Move> {
         }
     }
 
+    result.shrink_to_fit();
     result
 }
