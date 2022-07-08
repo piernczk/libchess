@@ -22,6 +22,8 @@
 use crate::board::*;
 use crate::piece::*;
 
+use std::fmt;
+
 /// The type of a move.
 #[repr(u8)]
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -52,6 +54,18 @@ impl TryFrom<u8> for MoveType {
     }
 }
 
+/// An error returned by [`Move::promotion`] when the piece is not valid.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub struct InvalidPromotionPiece(pub Piece);
+
+impl fmt::Display for InvalidPromotionPiece {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        write!(f, "invalid promotion piece: {:?}", self.0)
+    }
+}
+
+impl std::error::Error for InvalidPromotionPiece {}
+
 /// A move.
 ///
 /// It needs only 16 bits to be stored:
@@ -78,9 +92,13 @@ impl Move {
     /// Returns an `Err` if `promote` is a [`Pawn`](Piece::Pawn) or a
     /// [`King`](Piece::King).
     #[inline]
-    pub fn promotion(origin: Square, dest: Square, promote: Piece) -> Result<Self, ()> {
+    pub fn promotion(
+        origin: Square,
+        dest: Square,
+        promote: Piece,
+    ) -> Result<Self, InvalidPromotionPiece> {
         if promote == Piece::Pawn || promote == Piece::King {
-            return Err(());
+            return Err(InvalidPromotionPiece(promote));
         }
 
         Ok(Self(
