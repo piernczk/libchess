@@ -51,6 +51,39 @@ macro_rules! move_not_capturing_self {
     }
 }
 
+macro_rules! diagonals_loop {
+    ($vec:ident, $b:ident, $sq:expr, $pl:expr; $range:expr, $i:ident => $dest:expr) => {
+        for $i in $range {
+            let dest = $dest;
+            if let Some(c) = $b.get_color(dest) {
+                if c != $pl {
+                    $vec.push(Move::new($sq, dest));
+                }
+                break;
+            } else {
+                $vec.push(Move::new($sq, dest));
+            }
+        }
+    }
+}
+
+fn diagonals(vec: &mut Vec<Move>, b: &Board, sq: Square, pl: Player) {
+    let file = sq.file();
+    let rank = sq.rank();
+
+    // south west
+    diagonals_loop!(vec, b, sq, pl; 0..file.min(rank), i => (file - i, rank - i).into());
+
+    // south east
+    diagonals_loop!(vec, b, sq, pl; 0..(8 - file).min(rank), i => (file + i, rank - i).into());
+
+    // north east
+    diagonals_loop!(vec, b, sq, pl; 0..(8 - file.max(rank)), i => (file + i, rank + i).into());
+
+    // north west
+    diagonals_loop!(vec, b, sq, pl; 0..file.min(8 - rank), i => (file - i, rank + i).into());
+}
+
 #[allow(dead_code)]
 pub fn movegen_pseudo_legal(pos: &Position) -> Vec<Move> {
     let b = pos.get_board();
@@ -188,6 +221,7 @@ pub fn movegen_pseudo_legal(pos: &Position) -> Vec<Move> {
                     }
                 }
             }
+            Piece::Bishop => diagonals(&mut result, &b, sq, pl),
             _ => {}
         }
     }
