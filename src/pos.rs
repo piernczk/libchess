@@ -16,9 +16,13 @@
 // along with libchess. If not, see <https://www.gnu.org/licenses/>.
 
 //! Position-related things.
+
+mod movegen;
+
 use bitflags::bitflags;
 
 use crate::board::*;
+use crate::mov::*;
 use crate::piece::*;
 
 bitflags! {
@@ -60,6 +64,13 @@ impl CastlingAvailability {
     }
 }
 
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct Moves {
+    pub moves: Vec<Move>,
+    pub white_checked: bool,
+    pub black_checked: bool,
+}
+
 /// A position, as understood in Forsyth-Edwards Notation.
 ///
 /// A position consists of:
@@ -90,6 +101,51 @@ impl Position {
             halfmove_clock: 0,
             fullmove_number: 1,
         }
+    }
+
+    /// The position of a player's king.
+    pub fn king_pos(&self, pl: Player) -> Result<Square, ()> {
+        let sqi = Some((pl, Piece::King).into());
+        for i in 0..64 {
+            let sq = Square::from_index(i);
+            if self.get_board().square_info(sq) == sqi {
+                return Ok(sq);
+            }
+        }
+
+        Err(())
+    }
+
+    /// Generates all pseudolegal moves available in the position.
+    ///
+    /// Also returns whether or not the players' kings are in check. It's
+    /// checked because you need the moves list to check it anyway, and there is
+    /// no caching. Although, it's useful for determining if the moves are
+    /// actually legal. If you don't want it, see
+    /// [`movegen_pseudo_legal_ncc`](Self::movegen_pseudo_legal_ncc).
+    pub fn movegen_pseudo_legal(&self) -> Moves {
+        let moves = self.movegen_pseudo_legal_ncc();
+        let white_king = self.king_pos(Player::White);
+        let black_king = self.king_pos(Player::Black);
+
+        let mut white_checked = false;
+        let mut black_checked = false;
+        for mov in &moves {
+            if Ok(mov.dest()) == white_king {
+                white_checked = true;
+            } else if Ok(mov.dest()) == black_king {
+                black_checked = true;
+            }
+        }
+
+        Moves { moves, white_checked, black_checked }
+    }
+
+    /// Generates all pseudolegal moves available in a position.
+    ///
+    /// Doesn't check if the player's kings are in check (ncc - no check check).
+    pub fn movegen_pseudo_legal_ncc(&self) -> Vec<Move> {
+        movegen::movegen_pseudo_legal(&self)
     }
 
     /// Returns a reference to the [`Board`].
