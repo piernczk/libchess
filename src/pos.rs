@@ -42,6 +42,7 @@ bitflags! {
 }
 
 impl CastlingAvailability {
+    /// Kingside castling of a player.
     pub fn kingside(pl: Player) -> Self {
         match pl {
             Player::White => Self::WHITE_KINGSIDE,
@@ -49,6 +50,7 @@ impl CastlingAvailability {
         }
     }
 
+    /// Queenside castling of a player.
     pub fn queenside(pl: Player) -> Self {
         match pl {
             Player::White => Self::WHITE_QUEENSIDE,
@@ -56,6 +58,7 @@ impl CastlingAvailability {
         }
     }
 
+    /// Both castling sides of a player.
     pub fn both(pl: Player) -> Self {
         match pl {
             Player::White => Self::WHITE,
