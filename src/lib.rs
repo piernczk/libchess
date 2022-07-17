@@ -16,5 +16,6 @@
 // along with libchess. If not, see <https://www.gnu.org/licenses/>.
 
 pub mod board;
+pub mod mov;
 pub mod piece;
 pub mod pos;

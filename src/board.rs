@@ -113,6 +113,18 @@ impl Square {
     }
 }
 
+impl From<Square> for (u8, u8) {
+    fn from(sq: Square) -> Self {
+        (sq.file(), sq.rank())
+    }
+}
+
+impl From<(u8, u8)> for Square {
+    fn from(t: (u8, u8)) -> Self {
+        Square::new(t.0, t.1)
+    }
+}
+
 /// A pair of values returned by [`Square::square_info`].
 ///
 /// They represent the color of the piece and the piece itself, always in that
