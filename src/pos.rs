@@ -151,6 +151,101 @@ impl Position {
         movegen::movegen_pseudo_legal(&self)
     }
 
+    /// Make a move **without** checking its legality.
+    ///
+    /// Because of that, if you give an impossible move like f3-b3 en passant,
+    /// weird stuff can happen. You have to generate and possibly cache the
+    /// legal moves first to not break the position.
+    pub fn make_move(&mut self, mov: Move) {
+        self.en_passant = None;
+        match mov.move_type() {
+            MoveType::Normal => {
+                let origin = mov.origin();
+                let dest = mov.dest();
+
+                match self.board.square_info(origin) {
+                    Some(origini) => {
+                        if origini.pc == Piece::Pawn {
+                            if origini.pl == Player::White && origin.rank() == 1 && dest.rank() == 3 {
+                                // x2-x4 with a white pawn
+                                self.en_passant = Some((origin.file(), 2).into());
+                            } else if origini.pl == Player::Black && origin.rank() == 6 && dest.rank() == 4 {
+                                // x7-x5 with a black pawn
+                                self.en_passant = Some((origin.file(), 5).into());
+                            }
+                            self.halfmove_clock = 0; // a pawn push always resets
+                        } else if self.board.occupied(dest) { // if it was a pawn it was reset already
+                            self.halfmove_clock = 0;
+                        } else {
+                            self.halfmove_clock += 1;
+                        }
+
+                        self.board.unset_square(origin);
+                        self.board.set_square_info(dest, origini);
+                    }
+                    None => self.board.unset_square(dest), // moving an empty square
+                }
+            }
+            MoveType::EnPassant => {
+                let origin = mov.origin();
+                let dest = mov.dest();
+
+                match self.board.square_info(origin) {
+                    Some(origini) => {
+                        self.board.unset_square(origin);
+                        self.board.set_square_info(dest, origini);
+                    }
+                    None => self.board.unset_square(dest),
+                }
+
+                if dest.rank() > origin.rank() { // white en passant
+                    self.board.unset_square((dest.file(), dest.rank() - 1).into());
+                } else { // black en passant
+                    self.board.unset_square((dest.file(), dest.rank() + 1).into());
+                }
+
+                self.halfmove_clock = 0; // pawn move
+            }
+            MoveType::Promotion => {
+                let origin = mov.origin();
+                let dest = mov.dest();
+                let pl = self.board.get_color_unchecked(origin);
+
+                self.board.unset_square(origin);
+                self.board.set_square(dest, pl, mov.promotion_piece().unwrap());
+                self.halfmove_clock = 0;
+            }
+            MoveType::Castling => {
+                let king = mov.origin();
+                let king_rank = king.rank();
+                let rook = mov.dest();
+                let pl = self.board.get_color_unchecked(king);
+
+                self.board.unset_square(king);
+                self.board.unset_square(rook);
+
+                if king.file() > rook.file() { // queenside
+                    self.board.set_square((king_rank, 2).into(), pl, Piece::King);
+                    self.board.set_square((king_rank, 3).into(), pl, Piece::Rook);
+                } else { // kingside
+                    self.board.set_square((king_rank, 6).into(), pl, Piece::King);
+                    self.board.set_square((king_rank, 5).into(), pl, Piece::Rook);
+                }
+
+                self.castling_availability &= !CastlingAvailability::both(self.turn);
+                self.halfmove_clock += 1; // for some reason
+            }
+        }
+
+        self.turn = match self.turn {
+            Player::White => Player::Black,
+            Player::Black => {
+                self.fullmove_number += 1;
+                Player::White
+            }
+        };
+    }
+
     /// Returns a reference to the [`Board`].
     #[inline]
     pub fn get_board(&self) -> &Board {
