@@ -146,7 +146,8 @@ impl Position {
 
     /// Generates all pseudolegal moves available in a position.
     ///
-    /// Doesn't check if the player's kings are in check (ncc - no check check).
+    /// Doesn't check whether or not players' kings are in check (ncc - no check
+    /// check duh).
     pub fn movegen_pseudo_legal_ncc(&self) -> Vec<Move> {
         movegen::movegen_pseudo_legal(&self)
     }
